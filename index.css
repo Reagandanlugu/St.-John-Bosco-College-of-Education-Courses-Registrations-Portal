@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@theme {
+  --color-college-red: #E31E24;
+  --color-college-blue: #0038A8;
+  --color-college-dark: #1A1A1A;
+}
+
+@layer base {
+  body {
+    @apply bg-slate-50;
+    background-image: 
+      radial-gradient(circle at 2px 2px, rgba(227, 30, 36, 0.05) 1px, transparent 0);
+    background-size: 32px 32px;
+  }
+}
+
+.glass-card {
+  @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+}
+
+.college-gradient {
+  background: linear-gradient(135deg, #E31E24 0%, #9B1418 100%);
+}
+
+.college-blue-gradient {
+  background: linear-gradient(135deg, #0038A8 0%, #001C58 100%);
+}
+
+.college-stripes {
+  background: repeating-linear-gradient(
+    -45deg,
+    #E31E24,
+    #E31E24 6px,
+    #ffffff 6px,
+    #ffffff 10px,
+    #E31E24 10px,
+    #E31E24 16px,
+    #ffffff 16px,
+    #ffffff 20px
+  );
+}
+
+.college-stripes-horizontal {
+  background: repeating-linear-gradient(
+    0deg,
+    #E31E24,
+    #E31E24 4px,
+    #ffffff 4px,
+    #ffffff 6px,
+    #E31E24 6px,
+    #E31E24 10px
+  );
+}

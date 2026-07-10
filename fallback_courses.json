@@ -1,0 +1,68 @@
+{
+  "100_1": [
+    "Foundations of Education in Ghana",
+    "Inclusive School-Based Inquiry",
+    "Language and Literacy I",
+    "Mathematics I",
+    "Science I",
+    "Social Studies and TVET I",
+    "Supported Teaching In School (STS) I",
+    "African Studies"
+  ],
+  "100_2": [
+    "Psychological Basis of Teaching and Learning",
+    "Introduction to Curriculum Development",
+    "Language and Literacy II",
+    "Mathematics II",
+    "Science II",
+    "Social Studies and TVET II",
+    "Supported Teaching In School (STS) II",
+    "Physical Education & Health"
+  ],
+  "200_3": [
+    "Differentiated Assessment in Education",
+    "Philosophy of Education",
+    "Curriculum Studies in Primary/JHS Education",
+    "Pedagogies of Teaching Mathematics",
+    "Pedagogies of Teaching Science",
+    "Pedagogies of Teaching English",
+    "Supported Teaching In School (STS) III"
+  ],
+  "200_4": [
+    "Management of School Organizations",
+    "Guidance and Counseling in Education",
+    "Research Methods in Education I",
+    "Advanced Pedagogies of Mathematics",
+    "Advanced Pedagogies of Science",
+    "Advanced Pedagogies of Literacy",
+    "Supported Teaching In School (STS) IV"
+  ],
+  "300_5": [
+    "Educational Measurement and Evaluation",
+    "Special and Inclusive Education Pedagogy",
+    "Action Research in Education I",
+    "Subject Specialization Methodologies I",
+    "Subject Specialization Content I",
+    "Supported Teaching In School (STS) V"
+  ],
+  "300_6": [
+    "Curriculum Innovation and Implementation",
+    "Educational Technology and ICT Integration",
+    "Action Research in Education II",
+    "Subject Specialization Methodologies II",
+    "Subject Specialization Content II",
+    "Supported Teaching In School (STS) VI"
+  ],
+  "400_7": [
+    "Off-Campus Teaching Practicum (Macro Teaching)",
+    "Reflective Teaching Seminar I",
+    "Project Work / Dissertation I",
+    "Professional Ethics in Teaching"
+  ],
+  "400_8": [
+    "Off-Campus Teaching Practicum (Internship Evaluation)",
+    "Reflective Teaching Seminar II",
+    "Project Work / Dissertation II",
+    "Educational Leadership and Administration"
+  ]
+}

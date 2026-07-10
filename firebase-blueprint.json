@@ -1,0 +1,121 @@
+{
+  "entities": {
+    "Student": {
+      "title": "Student",
+      "description": "Student registration record",
+      "type": "object",
+      "properties": {
+        "fullName": { "type": "string", "description": "Full name of the student" },
+        "indexNumber": { "type": "string", "description": "Student Index or Reference Number" },
+        "age": { "type": "number", "description": "Age of the student" },
+        "gender": { "type": "string", "enum": ["Male", "Female", "Other"] },
+        "email": { "type": "string", "format": "email" },
+        "year": { "type": "number", "description": "Year of study (1-4)" },
+        "semester": { "type": "number", "description": "Semester (1-8)" },
+        "department": { "type": "string", "description": "Academic department" },
+        "registrationType": { "type": "string", "enum": ["Regular", "Supplementary", "Resit"], "description": "Registration program type" },
+        "photo": { "type": "string", "description": "Base64 encoded passport photo (200x150)" },
+        "registeredCourses": { 
+          "type": "array", 
+          "items": { "type": "string" },
+          "description": "List of courses registered for the current semester"
+        },
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["fullName", "indexNumber", "age", "gender", "email", "year", "semester", "department", "registrationType", "uid"]
+    },
+    "SystemSettings": {
+      "title": "System Settings",
+      "description": "Global system configuration",
+      "type": "object",
+      "properties": {
+        "registrationOpen": { "type": "boolean", "description": "Whether registration is currently open" },
+        "registrationStart": { "type": "string", "format": "date-time", "description": "Scheduled start time" },
+        "registrationEnd": { "type": "string", "format": "date-time", "description": "Scheduled end time" },
+        "updatedBy": { "type": "string", "description": "UID of the admin who last updated" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["registrationOpen"]
+    },
+    "Course": {
+      "title": "Course",
+      "description": "Academic course definition",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Name of the course" },
+        "level": { "type": "number", "description": "Year level (100, 200, 300, 400)" },
+        "semester": { "type": "number", "description": "Semester (1-8)" },
+        "type": { "type": "string", "enum": ["Core", "Elective"] },
+        "department": { "type": "string", "description": "Department this course belongs to (optional, 'General' if for all)" }
+      },
+      "required": ["name", "level", "semester", "type"]
+    },
+    "Programme": {
+      "title": "Programme",
+      "description": "Academic programme or department name",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Portal administrator record",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "fullName": { "type": "string" },
+        "addedAt": { "type": "string", "format": "date-time" },
+        "addedBy": { "type": "string" }
+      },
+      "required": ["email", "fullName"]
+    },
+    "SpecialRegistration": {
+      "title": "Special Registration",
+      "description": "Student registration for a particular course / paper as regular, resit or supplementary",
+      "type": "object",
+      "properties": {
+        "studentUid": { "type": "string", "description": "Student Firebase Auth UID" },
+        "studentName": { "type": "string", "description": "Name of the student" },
+        "indexNumber": { "type": "string", "description": "Index number of the student" },
+        "department": { "type": "string", "description": "Programme or department name" },
+        "level": { "type": "number", "description": "Academic Level of course (100, 200, 300, 400)" },
+        "semester": { "type": "number", "description": "Academic semester term (1-8)" },
+        "courseName": { "type": "string", "description": "Name of the target course" },
+        "registrationType": { "type": "string", "enum": ["Regular", "Supplementary", "Resit"] },
+        "email": { "type": "string", "format": "email" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["studentUid", "studentName", "indexNumber", "department", "level", "semester", "courseName", "registrationType", "email"]
+    }
+  },
+  "firestore": {
+    "/students/{studentId}": {
+      "schema": "Student",
+      "description": "Collection of registered students"
+    },
+    "/special_registrations/{registrationId}": {
+      "schema": "SpecialRegistration",
+      "description": "Collection of resit, supplementary or custom individual course registrations"
+    },
+    "/settings/registration": {
+      "schema": "SystemSettings",
+      "description": "Registration status setting"
+    },
+    "/courses/{courseId}": {
+      "schema": "Course",
+      "description": "Collection of available courses"
+    },
+    "/programmes/{programmeId}": {
+      "schema": "Programme",
+      "description": "Collection of available academic programmes"
+    },
+    "/admins/{adminId}": {
+      "schema": "Admin",
+      "description": "Collection of portal administrators"
+    }
+  }
+}

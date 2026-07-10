@@ -1,0 +1,154 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        request.auth.token.email == "reagandanlugu09@gmail.com"
+      );
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Validation Helpers ---
+
+    function isValidStudent(data) {
+      return data.keys().hasAll(['fullName', 'indexNumber', 'age', 'gender', 'email', 'year', 'semester', 'department', 'uid', 'createdAt', 'registrationType']) &&
+             data.keys().size() <= 13 && 
+             data.fullName is string && data.fullName.size() <= 100 &&
+             data.indexNumber is string && data.indexNumber.size() <= 20 &&
+             data.age is number && data.age >= 16 && data.age <= 100 &&
+             data.gender in ['Male', 'Female', 'Other'] &&
+             data.email == request.auth.token.email &&
+             data.year in [1, 2, 3, 4] &&
+             data.semester in [1, 2, 3, 4, 5, 6, 7, 8] &&
+             data.department is string && data.department.size() <= 100 &&
+             data.registrationType in ['Regular', 'Supplementary', 'Resit'] &&
+             data.uid == request.auth.uid &&
+             (!('photo' in data) || (data.photo is string && data.photo.size() <= 200000)) && 
+             (!('registeredCourses' in data) || (data.registeredCourses is list && data.registeredCourses.size() <= 50)) &&
+             data.createdAt == request.time;
+    }
+
+    function isValidCourse(data) {
+      return data.keys().hasAll(['name', 'level', 'semester', 'type']) &&
+             data.name is string && data.name.size() <= 150 &&
+             data.level in [100, 200, 300, 400] &&
+             data.semester in [1, 2, 3, 4, 5, 6, 7, 8] &&
+             data.type in ['Core', 'Elective'] &&
+             (!('department' in data) || (data.department is string && data.department.size() <= 100));
+    }
+
+    function isValidProgramme(data) {
+      return data.keys().hasAll(['name', 'createdAt', 'addedBy']) &&
+             data.name is string && data.name.size() <= 100 &&
+             data.createdAt == request.time &&
+             data.addedBy == request.auth.token.email;
+    }
+
+    function isValidSystemSettings(data) {
+      return data.keys().hasAll(['registrationOpen']) &&
+             data.registrationOpen is bool &&
+             (!('registrationStart' in data) || (data.registrationStart == null || data.registrationStart is timestamp)) &&
+             (!('registrationEnd' in data) || (data.registrationEnd == null || data.registrationEnd is timestamp)) &&
+             (!('updatedAt' in data) || data.updatedAt == request.time) &&
+             (!('updatedBy' in data) || data.updatedBy == request.auth.uid);
+    }
+
+    function isValidAdmin(data) {
+      return data.keys().hasAll(['email', 'fullName', 'addedAt', 'addedBy']) &&
+             data.email is string && data.email.size() <= 100 &&
+             data.fullName is string && data.fullName.size() <= 100 &&
+             data.addedAt == request.time;
+    }
+
+    function isValidSpecialRegistration(data) {
+      return data.keys().hasAll(['studentUid', 'studentName', 'indexNumber', 'department', 'level', 'semester', 'courseName', 'registrationType', 'email', 'createdAt']) &&
+             data.keys().size() == 10 &&
+             data.studentUid == request.auth.uid &&
+             data.studentName is string && data.studentName.size() <= 100 &&
+             data.indexNumber is string && data.indexNumber.size() <= 100 &&
+             data.department is string && data.department.size() <= 100 &&
+             data.level in [100, 200, 300, 400] &&
+             data.semester in [1, 2, 3, 4, 5, 6, 7, 8] &&
+             data.courseName is string && data.courseName.size() <= 150 &&
+             data.registrationType in ['Regular', 'Supplementary', 'Resit'] &&
+             data.email == request.auth.token.email &&
+             data.createdAt == request.time;
+    }
+
+    // --- Rules ---
+
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow create: if isAdmin() && isValidId(adminId) && isValidAdmin(incoming());
+      allow update: if isAdmin() && isValidAdmin(incoming()) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['fullName', 'updatedAt', 'updatedBy'])
+      );
+      allow delete: if isAdmin() && 
+                    existing().email != "reagandanlugu09@gmail.com";
+    }
+
+    match /students/{studentId} {
+      allow get: if isOwner(studentId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwner(studentId) && isValidId(studentId) && isValidStudent(incoming()) && (
+        !exists(/databases/$(database)/documents/settings/registration) ||
+        get(/databases/$(database)/documents/settings/registration).data.registrationOpen == true
+      );
+      allow update: if (isOwner(studentId) && isValidStudent(incoming()) && (
+        !exists(/databases/$(database)/documents/settings/registration) ||
+        get(/databases/$(database)/documents/settings/registration).data.registrationOpen == true
+      ) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['photo', 'registeredCourses', 'year', 'semester', 'fullName', 'age', 'gender', 'department', 'registrationType'])
+      )) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /special_registrations/{registrationId} {
+      allow get: if isSignedIn() && (resource.data.studentUid == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.studentUid == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && isValidId(registrationId) && isValidSpecialRegistration(incoming());
+      allow delete: if isSignedIn() && (resource.data.studentUid == request.auth.uid || isAdmin());
+    }
+
+    match /settings/registration {
+      allow read: if true; // Allow anyone to check status
+      allow write: if isAdmin() && isValidSystemSettings(incoming());
+    }
+
+    match /courses/{courseId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin() && isValidCourse(incoming());
+    }
+
+    match /programmes/{programmeId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin() && isValidProgramme(incoming());
+    }
+  }
+}
